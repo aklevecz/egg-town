@@ -1,0 +1,43 @@
+@font-face {
+  font-family: Stolzl Bold;
+  src: url("fonts/Stolzl/Stolzl\ Display\ Bold.otf");
+}
+
+body {
+  background: black;
+  color: white;
+  font-family: Stolzl Bold;
+  width: 100%;
+  margin: 0;
+}
+
+.heading {
+  font-size: 4.5rem;
+  text-align: center;
+  margin-top: 8px;
+}
+
+@media screen and (min-width: 768px) {
+  .heading {
+    font-size: 8rem;
+  }
+}
+
+.line {
+  margin: 0px 16px;
+  font-size: 5rem;
+}
+
+@media screen and (min-width: 768px) {
+  .line {
+    font-size: 9rem;
+  }
+}
+
+.raptor-container {
+  width: 100%;
+}
+canvas {
+  margin: auto;
+  width: 100%;
+}
