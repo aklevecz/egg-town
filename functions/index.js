@@ -2,20 +2,10 @@
 
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
-require("core-js/modules/es.object.to-string.js");
-
-require("core-js/modules/es.promise.js");
-
-require("core-js/modules/es.regexp.exec.js");
-
-require("core-js/modules/es.string.replace.js");
-
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.ssrapp = void 0;
-
-require("regenerator-runtime/runtime.js");
 
 var functions = _interopRequireWildcard(require("firebase-functions"));
 
@@ -45,7 +35,13 @@ function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try
 
 function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
 
+// import "core-js/stable";
+// import "regenerator-runtime/runtime";
+console.log("development");
+
 var index = _fs["default"].readFileSync(__dirname + "/index.html", "utf8");
+
+var silverIndex = _fs["default"].readFileSync(__dirname + "/silver-index.html", "utf8");
 
 var app = (0, _express["default"])();
 var MAINNET_ADDRESS = "0x525aA007d06c40bCb2Ce4cDa06AC559768E6A327";
@@ -54,18 +50,15 @@ var silverRaptorAbi = require(__dirname + "/contracts/SilverRaptor.json").abi;
 
 var web3 = new _web["default"]("https://mainnet.infura.io/v3/e835057bad674697959be47dcac5028e");
 var contract = new web3.eth.Contract(silverRaptorAbi, MAINNET_ADDRESS);
-app.get("/silver-raptor", /*#__PURE__*/function () {
+app.get("/ipfs-test", /*#__PURE__*/function () {
   var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(req, res) {
-    var html, finalHtml;
     return regeneratorRuntime.wrap(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
-            html = (0, _server.renderToString)( /*#__PURE__*/_react["default"].createElement(_SilverRaptor["default"], null));
-            finalHtml = index.replace("__EGG__", html);
-            res.send(finalHtml);
+            res.send("forg");
 
-          case 3:
+          case 1:
           case "end":
             return _context.stop();
         }
@@ -77,31 +70,47 @@ app.get("/silver-raptor", /*#__PURE__*/function () {
     return _ref.apply(this, arguments);
   };
 }());
-app.get("**", /*#__PURE__*/function () {
-  var _ref2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(_, res) {
-    var metadata, html, finalHtml;
+app.get("/silver-raptors/**", /*#__PURE__*/function () {
+  var _ref2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(req, res) {
+    var tId, ipfsURI, owner, metadata, html, finalHtml;
     return regeneratorRuntime.wrap(function _callee2$(_context2) {
       while (1) {
         switch (_context2.prev = _context2.next) {
           case 0:
-            // This will be more useful for pulling individual raptors
-            // And plugging the data into the window to avoid rerendering
-            // const owner = await contract.methods
-            //   .tokenURI(125)
-            //   .call()
-            //   .catch((e) => console.log(e));
-            // const metadata = await fetch(`https://ipfs.io/${owner.replace(":/", "")}`)
-            //   .then((r) => r.json())
-            //   .catch((e) => console.log(e));
-            metadata = mockMeta;
-            html = (0, _server.renderToString)( /*#__PURE__*/_react["default"].createElement(_App["default"], {
-              metadata: metadata
-            }));
-            finalHtml = index.replace("__EGG__", html).replace("__META_DATA__", JSON.stringify(metadata));
-            res.set("Cache-Control", "public, max-age=600, s-maxage=1200");
-            return _context2.abrupt("return", res.status(200).send(finalHtml));
+            console.log("wtf");
+            tId = req.path.split("/")[2];
+            _context2.next = 4;
+            return contract.methods.tokenURI(tId).call()["catch"](function (e) {
+              return console.log(e);
+            });
 
-          case 5:
+          case 4:
+            ipfsURI = _context2.sent;
+            _context2.next = 7;
+            return contract.methods.ownerOf(tId).call()["catch"](function (e) {
+              return console.log(e);
+            });
+
+          case 7:
+            owner = _context2.sent;
+            _context2.next = 10;
+            return (0, _isomorphicFetch["default"])("https://ipfs.io/".concat(ipfsURI.replace(":/", ""))).then(function (r) {
+              return r.json();
+            })["catch"](function (e) {
+              return console.log(e);
+            });
+
+          case 10:
+            metadata = _context2.sent;
+            metadata.owner = owner;
+            html = (0, _server.renderToString)( /*#__PURE__*/_react["default"].createElement(_SilverRaptor["default"], {
+              metadata: metadata,
+              window: null
+            }));
+            finalHtml = silverIndex.replace("__EGG__", html).replace("__META_DATA__", JSON.stringify(metadata));
+            res.send(finalHtml);
+
+          case 15:
           case "end":
             return _context2.stop();
         }
@@ -113,17 +122,46 @@ app.get("**", /*#__PURE__*/function () {
     return _ref2.apply(this, arguments);
   };
 }());
+app.get("**", /*#__PURE__*/function () {
+  var _ref3 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(_, res) {
+    var mockMeta, metadata, html, finalHtml;
+    return regeneratorRuntime.wrap(function _callee3$(_context3) {
+      while (1) {
+        switch (_context3.prev = _context3.next) {
+          case 0:
+            // This will be more useful for pulling individual raptors
+            // And plugging the data into the window to avoid rerendering
+            mockMeta = {
+              name: "Silver Raptor 125",
+              description: "The 125th Silver Raptor",
+              external_url: "https://raptor.pizza/silver-raptors/125",
+              image: "ipfs://QmYqPSXpWdZuLHUBZn22JizV88vzDmEJyLg4sdCd6Dy4de",
+              animation_url: "ipfs://QmT729X131cHpsbxyQy9BkrTebcTPajjFevDbk4UXc3YBR?filename=silver_raptor.glb",
+              attributes: [{
+                display_type: "number",
+                trait_type: "Gen",
+                value: 1
+              }]
+            };
+            metadata = mockMeta;
+            html = (0, _server.renderToString)( /*#__PURE__*/_react["default"].createElement(_App["default"], {
+              metadata: metadata
+            }));
+            finalHtml = index.replace("__EGG__", html).replace("__META_DATA__", JSON.stringify(metadata));
+            res.set("Cache-Control", "public, max-age=600, s-maxage=1200");
+            return _context3.abrupt("return", res.status(200).send(finalHtml));
+
+          case 6:
+          case "end":
+            return _context3.stop();
+        }
+      }
+    }, _callee3);
+  }));
+
+  return function (_x5, _x6) {
+    return _ref3.apply(this, arguments);
+  };
+}());
 var ssrapp = functions.https.onRequest(app);
 exports.ssrapp = ssrapp;
-var mockMeta = {
-  name: "Silver Raptor 125",
-  description: "The 125th Silver Raptor",
-  external_url: "https://raptor.pizza/silver-raptors/125",
-  image: "ipfs://QmYqPSXpWdZuLHUBZn22JizV88vzDmEJyLg4sdCd6Dy4de",
-  animation_url: "ipfs://QmT729X131cHpsbxyQy9BkrTebcTPajjFevDbk4UXc3YBR?filename=silver_raptor.glb",
-  attributes: [{
-    display_type: "number",
-    trait_type: "Gen",
-    value: 1
-  }]
-};

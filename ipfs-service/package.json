@@ -1,0 +1,19 @@
+{
+  "name": "ipfs-service",
+  "version": "1.0.0",
+  "description": "save those ipfs files",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "deploy": "gcloud run deploy ipfs-service --image gcr.io/eggs69/ipfs-service --platform managed --region us-central1"
+  },
+  "author": "",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "bcrypt": "^5.0.1",
+    "bcrypto": "^5.4.0",
+    "cids": "^1.1.6",
+    "express": "^4.17.1",
+    "ipfs-core": "^0.5.2"
+  }
+}

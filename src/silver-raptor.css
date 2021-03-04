@@ -1,0 +1,38 @@
+.title-container {
+  position: absolute;
+  top: 10px;
+  font-size: 3rem;
+  width: 100%;
+  text-align: center;
+}
+
+.desc-container {
+  margin: 10px;
+  font-size: 2rem;
+}
+
+@media screen and (min-width: 768px) {
+  .title-container {
+    font-size: 80px;
+  }
+
+  .desc-container {
+    font-size: 80px;
+  }
+}
+
+.desc-container > div {
+  margin-top: 5px;
+}
+
+.title {
+  text-decoration: underline;
+}
+
+.owner {
+  word-break: break-all;
+}
+
+.raptor-text {
+  word-break: break-all;
+}

@@ -27,5 +27,6 @@ if (!window.META_DATA) {
 }
 
 (0, _reactDom.render)( /*#__PURE__*/_react["default"].createElement(_App["default"], {
-  metadata: window.META_DATA
+  metadata: window.META_DATA,
+  window: window
 }), document.querySelector("#root"));

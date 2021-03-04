@@ -1,14 +1,23 @@
 import React, { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { AmbientLight, PointLight, SpotLight } from "three";
-import { GUI } from "../node_modules/three/examples/jsm/libs/dat.gui.module";
 
+let raptorText = "";
+for (let i = 0; i < 100; i++) {
+  raptorText += "RAPTOR ";
+}
+// ENV VAR THIS
 const testing = false;
-export default function () {
+
+// MAYBE MAKE THESE FUNCTIONS THAT ARE CALLED AT THE RELEVANT STEP
+// AFTER RENDERING AND WINDOW AND SHIT
+// IE IGNORED BY THE SERVER SIDE
+export default function ({ metadata, window }) {
   const canvasRef = useRef();
   const loadThree = () => {
     // console.log("loading");
     const GLTFLoader = require("./GLTFLoader").GLTFLoader;
+    const GUI = require("./dat.gui.module").GUI;
     // const width = window.innerWidth > 375 ? 375 : window.innerWidth;
     const width = window.innerWidth;
     const height = width;
@@ -27,11 +36,11 @@ export default function () {
       cameraFolder.add(camera.position, "z", -1, 1, 0.001);
     }
 
-    const renderer = new THREE.WebGLRenderer();
+    const renderer = new THREE.WebGLRenderer({ canvas: canvasRef.current });
     renderer.setClearColor(0xff0000, 1);
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(width, height);
-    canvasRef.current.appendChild(renderer.domElement);
+    // canvasRef.current.appendChild(renderer.domElement);
 
     const light = new PointLight(0xffffff, 1);
     light.position.set(50, 50, 50);
@@ -42,8 +51,17 @@ export default function () {
 
     let raptor;
     const loader = new GLTFLoader();
+    // ENV VARS FOR THIS SHIT
+    console.log(process.env.NODE_ENV);
+    const raptorAss =
+      process.env.NODE_ENV === "development"
+        ? "http://localhost:9000"
+        : "https://raptor.pizza";
     loader.load(
-      require("./silver_raptor2.glb"),
+      raptorAss + "/silver_raptor2.glb",
+      // "http://" + window.location.hostname + ":5000/silver_raptor2.glb",
+      // "https://raptor.pizza/silver_raptor2.glb",
+      // require("./silver_raptor2.glb"),
       // props.metadata.animation_url.replace("ipfs://", "https://ipfs.io/ipfs/"),
       (gltf) => {
         gltf.scene.scale.set(10, 10, 10);
@@ -93,8 +111,36 @@ export default function () {
     animate();
   };
   useEffect(() => {
+    if (!window) return;
     loadThree();
-  }, []);
+  }, [window]);
 
-  return <div className="raptor-container" ref={canvasRef}></div>;
+  return (
+    <div className="raptor-container" style={{ color: "white" }}>
+      <div>
+        <canvas
+          // style="fill:red;"
+          width={window ? window.innerWidth : 5000}
+          height={window ? window.innderWidth : 5000}
+          ref={canvasRef}
+        />
+      </div>
+      {/* THIS SHOULD PROBABLY LIVE OUTSIDE OF THIS SO IT CAN BE AGNOSTIC TO DATA*/}
+      {metadata && (
+        <>
+          <div className="title-container">
+            <div>{metadata.name}</div>
+          </div>
+          <div className="desc-container">
+            <div className="title">{metadata.description}</div>
+            <div className="owner">
+              <span className="red-wrap">owned by:</span> {metadata.owner}
+            </div>
+            <div className="line"></div>
+            <div className="raptor-text">{raptorText}</div>
+          </div>
+        </>
+      )}
+    </div>
+  );
 }

@@ -15,5 +15,7 @@ if (!window.META_DATA) {
     attributes: [{ display_type: "number", trait_type: "Gen", value: 1 }],
   };
 }
-
-render(<App metadata={window.META_DATA} />, document.querySelector("#root"));
+render(
+  <App metadata={window.META_DATA} window={window} />,
+  document.querySelector("#root")
+);
